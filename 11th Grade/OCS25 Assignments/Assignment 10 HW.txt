@@ -1,0 +1,335 @@
+Duplicate keys not shown
+2-3 Trees:
+1)
+[Y]
+
+[L Y]
+
+    [P]
+   /   \
+ [L]   [Y]
+
+     [P]
+   /     \
+[L M]   [Y]
+
+     [P]
+   /     \
+[L M]  [X Y]
+
+    [L P]
+   /  |  \
+ [H] [M] [X Y]
+
+    [L P]
+   /  |  \
+[C H][M] [X Y]
+
+       [P]
+      /   \
+   [L]    [X]
+  /  \    /  \
+[C H][M][R] [Y]
+
+       [P]
+       /   \
+   [C L]   [X]
+  /  |  \  /  \
+[A] [H] [M][R][Y]
+
+        [P]
+       /    \
+  [C L]     [X]
+ /  |  \   /  \
+[A][E H][M][R][Y]
+
+        [P]
+       /    \
+  [C L]     [X]
+ /  |  \   /   \
+[A][E H][M][R S][Y]
+
+         [P]
+       /      \
+   [C L]     [S X]
+  /  |  \    / | \
+[A][E H][M][R][T][Y]
+
+         [P]
+       /      \
+   [C L]     [S X]
+  /  |  \    / | \
+[A B][E H][M][R][T][Y]
+
+2)
+[A]
+
+[A L]
+
+   [G]
+  /   \
+[A]   [L]
+
+   [G]
+  /   \
+[A]  [L O]
+
+    [G O]
+   /  |   \
+ [A] [L]  [R]
+
+    [G O]
+   /  |   \
+ [A] [I L] [R]
+
+    [G O]
+   /  |   \
+ [A] [I L] [R T]
+
+       [I]
+      /   \
+   [G]    [O]
+  /  \   /   \
+[A] [H] [L] [R T]
+
+       [I]
+      /   \
+   [G]    [O]
+  /  \   /   \
+[A] [H] [L M] [R T]
+
+       [I]
+      /   \
+   [G]    [O S]
+  /  \   /  |  \
+[A] [H][L M][R][T]
+
+       [I]
+      /   \
+   [G]    [O S]
+  /  \   /  |  \
+[A] [H][L M][R][T X]
+
+        [I S]
+       /  |   \
+    [G] [O]   [X]
+   /  \ / \  /  |\
+ [A][H][L M][R][T][Y]
+
+         [I S]
+       /  |   \
+    [G] [O]    [X]
+   /  \ / \  /  | \
+ [A][H][L M][R][T][Y Z]
+
+
+Red-black Trees:
+
+3)
+Y(B)
+
+    Y(B)
+   /
+ L(R)
+
+    P(B)
+   /   \  
+ L(R)  Y(R)
+
+    P(B)
+   /   \
+ L(B)  Y(B)
+  \
+  M(R)
+
+    P(B)
+   /   \
+ L(B)  Y(B)
+  \     /
+M(R)   X(R)
+
+    P(B)
+   /   \
+ L(B)  Y(B)
+ /  \     /
+H(R) M(R) X(R)
+
+       P(B)
+    /       \
+  L(R)       Y(B)
+  /    \       /
+ H(B)  M(B)   X(R)
+ /
+C(R)
+
+       P(B)
+    /       \
+  L(R)       X(B)
+  /    \     /  \
+H(B)  M(B) R(R) Y(R)
+ /
+C(R)
+
+       P(B)
+    /       \
+  L(R)       X(R)
+  /    \     /  \
+H(B)  M(B) R(B) Y(B)
+ /          \
+C(R)        R(R)
+
+       P(B)
+    /       \
+  L(R)       X(R)
+  /    \     /  \
+ C(B)  M(B) R(B) Y(B)
+ /  \        \
+A(R) H(R)    R(R)
+
+       P(B)
+    /       \
+  L(R)       X(R)
+  /    \     /  \
+C(R)  M(B) R(B) Y(B)
+ /  \        \
+A(B) H(B)    R(R)
+      /
+     E(R)
+
+       P(B)
+    /       \
+  L(R)       X(R)
+  /    \     /  \
+C(R)  M(B) R(B) Y(B)
+ /  \       /  \
+A(B) H(B)  R(R) S(R)
+      /
+     E(R)
+
+       P(B)
+    /       \
+  L(R)       X(R)
+  /    \     /  \
+C(R)  M(B) R(R) Y(B)
+ /  \       /  \
+A(B) H(B)  R(B) S(B)
+      /          \
+     E(R)        T(R)
+
+       P(B)
+    /       \
+  L(R)       X(R)
+  /    \     /  \
+C(R)  M(B) R(R) Y(B)
+ /  \       /  \
+A(B) E(B)  R(B) S(B)
+ \    /  \         \
+B(R) C(R) H(R)     T(R)
+
+         P(B)
+     /         \
+   L(R)          X(R)
+  /    \       /      \
+  C(R)  M(B)   R(R)  Y(B)
+ /     \        / \
+A(B)    E(B)  R(B) S(B)
+/   \    /  \         \
+A(R)B(R)C(R) H(R)     T(R)
+
+
+
+4)
+A(B)
+
+ A(B)
+   \
+    L(R)
+
+   G(B)
+   /   \  
+ A(R)  L(R)
+
+   G(B)
+   /   \  
+ A(B)  L(B)
+          \
+          O(R)
+
+   G(B)
+   /   \
+ A(B)  O(B)
+       /   \
+      L(R) R(R)
+
+   G(B)
+   /   \
+ A(B)  O(R)
+       /   \
+      L(B) R(B)
+      /
+     I(R)
+
+   G(B)
+   /   \
+ A(B)  O(R)
+       /   \
+      L(B) R(B)
+      /      \
+     I(R)    T(R)
+
+   G(B)
+   /   \
+ A(B)   O(R)
+       /    \
+      I(B)   R(B)
+     /  \     \
+    H(R) L(R)  T(R)
+
+       I(B)
+     /      \
+   G(R)      O(R)
+ /    \     /    \
+A(B) H(B)  L(B)   R(B)
+               \     \
+               M(R)  T(R)
+
+       I(B)
+     /      \
+   G(R)      O(R)
+ /    \     /    \
+A(B) H(B)  L(B)    S(B)
+             \     /   \
+             M(R) R(R) T(R)
+
+       I(B)
+     /      \
+   G(B)      O(B)
+ /    \     /    \
+A(B) H(B)  L(B)    S(R)
+             \     /   \
+             M(R) R(B) T(B)
+                         \
+                        X(R)
+
+       I(B)
+     /      \
+   G(B)      O(B)
+ /    \     /    \
+A(B) H(B)  L(B)    S(R)
+             \     /   \
+             M(R) R(B)  X(B)
+                        /   \
+                      T(R)  Y(R)
+
+       I(B)
+     /      \
+   G(B)       S(B)
+ /    \     /       \
+A(B) H(B)  O(R)       X(R)
+           /   \      /   \
+          L(B)  R(B) T(B)  Y(B)
+           \                \
+           M(R)             Z(R)
+
+
+ 

@@ -1,0 +1,77 @@
+1.
+a)
+E
+A E
+S A E
+Y S A E
+Q Y S A E
+U Q Y S A E
+U Q Y S A E   (E duplicate)
+U Q Y S A E   (S duplicate)
+T U Q Y S A E
+I T U Q Y S A E
+O I T U Q Y S A E
+N O I T U Q Y S A E
+54 total compares
+
+b)
+E
+A E
+A E S
+A E S Y
+A E Q S Y
+A E Q S U Y
+A E Q S U Y   (E duplicate)
+A E Q S U Y   (s duplicate)
+A E Q S T U Y
+A E I Q S T U Y
+A E I O Q S T U Y
+A E I N O Q S T U Y
+29 total compares
+
+2.
+a)
+M I T D R U E Q S O N
+35 compares
+
+b)
+M I T D R U E Q S O N
+N I T D R U E Q S O
+N D T E R U Q S O
+N E T R U Q S O
+N E U R Q S O
+N U R Q S O
+N U S Q O
+N U S O
+N S O
+N O
+N
+(empty)
+
+c)
+M I T D R U E Q S O N
+M I T E R U Q S O N
+M I T R U Q S O N
+M T R U Q S O N
+T R U Q S O N
+T R U Q S O
+T R U Q S
+T R U S
+T S U
+T U
+T
+(empty)
+
+d)
+M I T D R U E Q S O N
+M I T D R U E Q S O
+O I T D R U E Q S
+Q I T D R U E S
+R I T D U E S
+S I T D U E
+T I U D E
+U I D E
+I D E
+D E
+E
+(empty)

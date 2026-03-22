@@ -1,0 +1,437 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font-sans); }
+.dash { padding: 1rem 0; }
+.tabs { display: flex; gap: 4px; margin-bottom: 1.5rem; flex-wrap: wrap; }
+.tab { padding: 6px 16px; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); font-size: 13px; cursor: pointer; background: transparent; color: var(--color-text-secondary); transition: all .15s; }
+.tab.active { background: var(--color-background-secondary); color: var(--color-text-primary); border-color: var(--color-border-primary); font-weight: 500; }
+.section { display: none; }
+.section.active { display: block; }
+.metric-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 1.5rem; }
+.metric { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 0.75rem 1rem; }
+.metric-label { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 4px; }
+.metric-value { font-size: 22px; font-weight: 500; color: var(--color-text-primary); }
+.metric-sub { font-size: 11px; color: var(--color-text-tertiary); margin-top: 2px; }
+.chart-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+.chart-box { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1rem; }
+.chart-title { font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 0.75rem; }
+.chart-sub { font-size: 11px; color: var(--color-text-secondary); margin-top: 4px; }
+.full-box { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1rem; margin-bottom: 1rem; }
+.legend { display: flex; flex-wrap: wrap; gap: 12px; font-size: 11px; color: var(--color-text-secondary); margin-bottom: 8px; }
+.leg-item { display: flex; align-items: center; gap: 4px; }
+.leg-dot { width: 10px; height: 10px; border-radius: 2px; }
+.model-table { width: 100%; font-size: 12px; border-collapse: collapse; }
+.model-table th { font-size: 11px; font-weight: 500; color: var(--color-text-secondary); text-align: right; padding: 4px 8px; border-bottom: 0.5px solid var(--color-border-tertiary); }
+.model-table th:first-child { text-align: left; }
+.model-table td { padding: 6px 8px; border-bottom: 0.5px solid var(--color-border-tertiary); text-align: right; color: var(--color-text-primary); }
+.model-table td:first-child { text-align: left; font-weight: 500; }
+.model-table tr:last-child td { border-bottom: none; }
+.model-table tr.best td { color: #3266ad; }
+.bar-wrap { position: relative; height: 200px; }
+.conf-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.conf-box { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 8px; font-size: 11px; }
+.conf-title { font-weight: 500; font-size: 11px; color: var(--color-text-secondary); margin-bottom: 6px; text-align: center; }
+.conf-matrix { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; }
+.cm-cell { padding: 6px 4px; text-align: center; font-size: 13px; font-weight: 500; border-radius: 4px; }
+.cm-tp { background: #d4edda; color: #1a5c2a; }
+.cm-tn { background: #d4edda; color: #1a5c2a; }
+.cm-fp { background: #f8d7da; color: #721c24; }
+.cm-fn { background: #f8d7da; color: #721c24; }
+.cm-label { font-size: 9px; color: var(--color-text-tertiary); display: block; }
+@media (prefers-color-scheme: dark) {
+  .cm-tp,.cm-tn { background: #1a3d25; color: #6fcf97; }
+  .cm-fp,.cm-fn { background: #3d1a1e; color: #f97b7b; }
+}
+.dist-select { font-size: 12px; padding: 4px 8px; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); background: transparent; color: var(--color-text-primary); margin-bottom: 8px; }
+.badge { display: inline-block; font-size: 10px; padding: 2px 8px; border-radius: 10px; font-weight: 500; }
+.badge-blue { background: var(--color-background-info); color: var(--color-text-info); }
+.badge-green { background: var(--color-background-success); color: var(--color-text-success); }
+.badge-warn { background: var(--color-background-warning); color: var(--color-text-warning); }
+.badge-red { background: var(--color-background-danger); color: var(--color-text-danger); }
+.feedback-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+.fb-card { border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 0.75rem 1rem; }
+.fb-header { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.fb-title { font-size: 13px; font-weight: 500; }
+.fb-body { font-size: 12px; color: var(--color-text-secondary); line-height: 1.6; }
+</style>
+
+<div class="dash">
+  <div style="margin-bottom:1rem;">
+    <span style="font-size:18px;font-weight:500;color:var(--color-text-primary)">Heart failure clinical analysis</span>
+    <span style="font-size:12px;color:var(--color-text-secondary);margin-left:10px;">299 patients · 12 features · 7 ML models</span>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('overview')">Overview</button>
+    <button class="tab" onclick="showTab('models')">Model performance</button>
+    <button class="tab" onclick="showTab('roc')">ROC curves</button>
+    <button class="tab" onclick="showTab('features')">Feature importance</button>
+    <button class="tab" onclick="showTab('distributions')">Distributions</button>
+    <button class="tab" onclick="showTab('confusion')">Confusion matrices</button>
+    <button class="tab" onclick="showTab('feedback')">Proposal feedback</button>
+  </div>
+
+  <!-- OVERVIEW -->
+  <div id="tab-overview" class="section active">
+    <div class="metric-grid">
+      <div class="metric"><div class="metric-label">Total patients</div><div class="metric-value">299</div><div class="metric-sub">UCI dataset</div></div>
+      <div class="metric"><div class="metric-label">Death events</div><div class="metric-value">96 <span style="font-size:14px;color:var(--color-text-danger)">32.1%</span></div><div class="metric-sub">Class imbalance</div></div>
+      <div class="metric"><div class="metric-label">Best AUC-ROC</div><div class="metric-value" style="color:#3266ad">0.892</div><div class="metric-sub">Random Forest</div></div>
+      <div class="metric"><div class="metric-label">Best MCC (CV)</div><div class="metric-value" style="color:#3266ad">0.624</div><div class="metric-sub">Random Forest</div></div>
+    </div>
+    <div class="chart-row">
+      <div class="chart-box">
+        <div class="chart-title">Class distribution</div>
+        <div style="position:relative;height:180px"><canvas id="c-class"></canvas></div>
+      </div>
+      <div class="chart-box">
+        <div class="chart-title">Model AUC-ROC comparison (5-fold CV)</div>
+        <div style="position:relative;height:180px"><canvas id="c-auc-bar"></canvas></div>
+      </div>
+    </div>
+    <div class="full-box">
+      <div class="chart-title">Age distribution by outcome</div>
+      <div class="legend">
+        <span class="leg-item"><span class="leg-dot" style="background:#3266ad"></span>Survived</span>
+        <span class="leg-item"><span class="leg-dot" style="background:#e05a4a"></span>Died</span>
+      </div>
+      <div style="position:relative;height:160px"><canvas id="c-age"></canvas></div>
+    </div>
+  </div>
+
+  <!-- MODELS -->
+  <div id="tab-models" class="section">
+    <div class="full-box">
+      <div class="chart-title">5-fold cross-validation results</div>
+      <table class="model-table">
+        <thead><tr><th>Model</th><th>MCC</th><th>AUC-ROC</th><th>F1</th><th>Precision</th><th>Recall</th><th>Accuracy</th></tr></thead>
+        <tbody id="model-tbody"></tbody>
+      </table>
+    </div>
+    <div class="chart-row">
+      <div class="chart-box">
+        <div class="chart-title">MCC by model</div>
+        <div style="position:relative;height:220px"><canvas id="c-mcc"></canvas></div>
+      </div>
+      <div class="chart-box">
+        <div class="chart-title">F1 score by model</div>
+        <div style="position:relative;height:220px"><canvas id="c-f1"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ROC -->
+  <div id="tab-roc" class="section">
+    <div class="full-box">
+      <div class="chart-title">ROC curves (test set, 20% hold-out)</div>
+      <div class="legend" id="roc-legend"></div>
+      <div style="position:relative;height:380px"><canvas id="c-roc"></canvas></div>
+    </div>
+  </div>
+
+  <!-- FEATURES -->
+  <div id="tab-features" class="section">
+    <div class="full-box">
+      <div class="chart-title">Feature importance (Random Forest)</div>
+      <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:8px;">Based on mean decrease in impurity across all trees</div>
+      <div style="position:relative;height:320px"><canvas id="c-feat"></canvas></div>
+    </div>
+    <div class="full-box">
+      <div class="chart-title">Key clinical insights</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:4px;">
+        <div style="padding:10px;background:var(--color-background-secondary);border-radius:var(--border-radius-md);">
+          <div style="font-size:12px;font-weight:500;color:var(--color-text-primary);margin-bottom:4px;">Follow-up time</div>
+          <div style="font-size:11px;color:var(--color-text-secondary);">Most predictive feature (36.1%). Longer time = better prognosis. Survival analysis domain.</div>
+        </div>
+        <div style="padding:10px;background:var(--color-background-secondary);border-radius:var(--border-radius-md);">
+          <div style="font-size:12px;font-weight:500;color:var(--color-text-primary);margin-bottom:4px;">Serum creatinine</div>
+          <div style="font-size:11px;color:var(--color-text-secondary);">2nd most important (15.4%). Elevated levels indicate renal dysfunction, a key mortality driver.</div>
+        </div>
+        <div style="padding:10px;background:var(--color-background-secondary);border-radius:var(--border-radius-md);">
+          <div style="font-size:12px;font-weight:500;color:var(--color-text-primary);margin-bottom:4px;">Ejection fraction</div>
+          <div style="font-size:11px;color:var(--color-text-secondary);">3rd most important (12.9%). Core measure of cardiac pumping efficiency. Low EF = high risk.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DISTRIBUTIONS -->
+  <div id="tab-distributions" class="section">
+    <div class="full-box">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
+        <div class="chart-title" style="margin:0">Feature distribution by outcome</div>
+        <select class="dist-select" id="dist-sel" onchange="updateDist()">
+          <option value="ejection_fraction">Ejection fraction</option>
+          <option value="serum_creatinine">Serum creatinine</option>
+          <option value="serum_sodium">Serum sodium</option>
+          <option value="age">Age</option>
+          <option value="creatinine_phosphokinase">Creatinine phosphokinase</option>
+          <option value="platelets">Platelets</option>
+        </select>
+      </div>
+      <div class="legend">
+        <span class="leg-item"><span class="leg-dot" style="background:#3266ad55;border:1px solid #3266ad"></span>Survived</span>
+        <span class="leg-item"><span class="leg-dot" style="background:#e05a4a55;border:1px solid #e05a4a"></span>Died</span>
+      </div>
+      <div style="position:relative;height:280px"><canvas id="c-dist"></canvas></div>
+      <div id="dist-stats" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px;font-size:12px;"></div>
+    </div>
+  </div>
+
+  <!-- CONFUSION -->
+  <div id="tab-confusion" class="section">
+    <div class="full-box">
+      <div class="chart-title">Confusion matrices (test set, 20% hold-out)</div>
+      <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:12px;">Green = correct predictions, Red = errors</div>
+      <div class="conf-grid" id="conf-grid"></div>
+    </div>
+  </div>
+
+  <!-- FEEDBACK -->
+  <div id="tab-feedback" class="section">
+    <div class="full-box" style="margin-bottom:0.75rem;">
+      <div class="chart-title" style="margin-bottom:8px;">Overall assessment</div>
+      <div style="font-size:13px;color:var(--color-text-secondary);line-height:1.7;">
+        This is a strong, well-structured proposal with clear technical ambition. The multimodal approach is well-motivated and the pipeline architecture is thoughtfully designed. Below are specific observations across strengths and areas for improvement.
+      </div>
+    </div>
+    <div class="feedback-grid">
+      <div class="fb-card">
+        <div class="fb-header"><span class="badge badge-green">Strength</span><span class="fb-title">Research motivation</span></div>
+        <div class="fb-body">The problem framing is compelling. The argument that marginal accuracy improvements translate to lives saved is clear, and the emphasis on underutilized data streams (wearables, unstructured notes) is novel and well-justified.</div>
+      </div>
+      <div class="fb-card">
+        <div class="fb-header"><span class="badge badge-green">Strength</span><span class="fb-title">Pipeline architecture</span></div>
+        <div class="fb-body">The heterogeneous graph schema (Figure 2) is sophisticated and clinically grounded. Modeling patients, diagnoses, medications, and signals as typed nodes with directed edges enables rich relational learning that tabular models cannot capture.</div>
+      </div>
+      <div class="fb-card">
+        <div class="fb-header"><span class="badge badge-green">Strength</span><span class="fb-title">Evaluation strategy</span></div>
+        <div class="fb-body">Choosing MCC as the primary metric for an imbalanced dataset (32% positive class) is methodologically sound and aligns with the Chicco & Jurman baseline. Including SHAP values for explainability is clinically important and submission-ready.</div>
+      </div>
+      <div class="fb-card">
+        <div class="fb-header"><span class="badge badge-warn">Suggestion</span><span class="fb-title">Time feature handling</span></div>
+        <div class="fb-body">The "time" feature (follow-up period) is the strongest predictor at 36.1% importance — but it may encode information unavailable at prediction time. Clarify whether this is a predictor or a survival analysis endpoint. Consider Cox PH or DeepSurv models.</div>
+      </div>
+      <div class="fb-card">
+        <div class="fb-header"><span class="badge badge-warn">Suggestion</span><span class="fb-title">Data acquisition plan</span></div>
+        <div class="fb-body">The proposal lists EPIC EHR, doctor notes, and wearable data as sources but the acquisition path is vague ("access will be sought"). For a research proposal, a concrete IRB/data sharing agreement plan with realistic timelines would strengthen credibility significantly.</div>
+      </div>
+      <div class="fb-card">
+        <div class="fb-header"><span class="badge badge-warn">Suggestion</span><span class="fb-title">Baseline scope</span></div>
+        <div class="fb-body">The UCI dataset has only 299 patients — far too small to meaningfully train GNNs or Graph Transformers. The proposal should explicitly address this: the UCI baseline trains on tabular data only, and GNN models require the additional EHR/multimodal data acquisition first.</div>
+      </div>
+      <div class="fb-card">
+        <div class="fb-header"><span class="badge badge-blue">Enhancement</span><span class="fb-title">Survival analysis framing</span></div>
+        <div class="fb-body">The title mentions "survival analysis" but the proposal focuses on binary classification. Consider formalizing the survival component with Kaplan-Meier curves and log-rank tests as an additional evaluation layer — this would better match the title claim.</div>
+      </div>
+      <div class="fb-card">
+        <div class="fb-header"><span class="badge badge-blue">Enhancement</span><span class="fb-title">Missing data strategy</span></div>
+        <div class="fb-body">Real-world EHR data will have substantial missing values. The proposal mentions imputation for tabular data but the multimodal case (missing echo, missing wearable) needs a dedicated strategy — e.g. modality dropout during training to build robustness.</div>
+      </div>
+      <div class="fb-card">
+        <div class="fb-header"><span class="badge badge-red">Risk</span><span class="fb-title">Scope creep</span></div>
+        <div class="fb-body">Integrating 7 data modalities (clinical, EHR, notes, wearables, ECG, echo, CXR) is ambitious to the point of being a multi-year project. For a student research project, consider scoping to 2-3 modalities with a clear plan to extend — and frame the others as future work.</div>
+      </div>
+      <div class="fb-card">
+        <div class="fb-header"><span class="badge badge-red">Risk</span><span class="fb-title">Reproducibility concerns</span></div>
+        <div class="fb-body">EPIC EHR, de-identified echo studies, and wearable data are very difficult to share publicly. This creates a reproducibility gap if the goal is open-sourcing. Consider pre-registering the study design and clearly distinguishing which parts of the pipeline are reproducible with public data only.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const MODELS = ['Logistic Regression','Naive Bayes','SVM','KNN','Decision Tree','Random Forest','Gradient Boosting'];
+const CV = {
+  'Logistic Regression': {MCC:0.6147,AUCROC:0.8749,F1:0.7255,Precision:0.7861,Recall:0.6774,Accuracy:0.8359},
+  'Naive Bayes':         {MCC:0.5161,AUCROC:0.851, F1:0.6188,Precision:0.7965,Recall:0.5105,Accuracy:0.7994},
+  'SVM':                 {MCC:0.5401,AUCROC:0.8607,F1:0.6677,Precision:0.7491,Recall:0.6047,Accuracy:0.806},
+  'KNN':                 {MCC:0.352, AUCROC:0.7506,F1:0.4645,Precision:0.6921,Recall:0.3542,Accuracy:0.7424},
+  'Decision Tree':       {MCC:0.4274,AUCROC:0.7112,F1:0.6045,Precision:0.6204,Recall:0.5947,Accuracy:0.7523},
+  'Random Forest':       {MCC:0.6235,AUCROC:0.8978,F1:0.7334,Precision:0.7793,Recall:0.6974,Accuracy:0.8393},
+  'Gradient Boosting':   {MCC:0.5804,AUCROC:0.8807,F1:0.7077,Precision:0.7256,Recall:0.6968,Accuracy:0.8192}
+};
+const ROC = {
+  'Logistic Regression': {fpr:[0,0,0,0.024,0.024,0.049,0.049,0.098,0.098,0.22,0.22,0.317,0.317,0.39,0.39,0.463,0.463,1],tpr:[0,0.053,0.158,0.158,0.474,0.474,0.579,0.579,0.632,0.632,0.684,0.684,0.895,0.895,0.947,0.947,1,1],auc:0.8588},
+  'Naive Bayes':         {fpr:[0,0.024,0.024,0.049,0.049,0.073,0.073,0.098,0.098,0.122,0.122,0.22,0.22,0.341,0.341,0.39,0.39,0.415,0.415,0.512,0.512,1],tpr:[0,0,0.263,0.263,0.316,0.316,0.579,0.579,0.684,0.684,0.737,0.737,0.789,0.789,0.842,0.842,0.895,0.895,0.947,0.947,1,1],auc:0.8562},
+  'SVM':                 {fpr:[0,0,0.024,0.024,0.049,0.049,0.098,0.098,0.22,0.22,0.244,0.244,0.341,0.341,0.488,0.488,1],tpr:[0,0.053,0.053,0.316,0.316,0.421,0.421,0.526,0.526,0.737,0.737,0.842,0.842,0.947,0.947,1,1],auc:0.8447},
+  'KNN':                 {fpr:[0,0,0.073,0.146,0.317,1],tpr:[0,0.105,0.211,0.474,0.895,1],auc:0.8004},
+  'Decision Tree':       {fpr:[0,0.146,1],tpr:[0,0.474,1],auc:0.6637},
+  'Random Forest':       {fpr:[0,0,0,0,0.024,0.024,0.024,0.049,0.049,0.073,0.146,0.146,0.171,0.171,0.22,0.22,0.268,0.293,0.317,0.317,0.366,0.415,0.488,0.537,0.561,0.585,0.732,0.805,0.976,1],tpr:[0,0.053,0.263,0.368,0.368,0.474,0.526,0.526,0.579,0.632,0.632,0.684,0.684,0.789,0.789,0.842,0.842,0.895,0.895,0.947,0.947,0.947,0.947,0.947,0.947,1,1,1,1,1],auc:0.8915},
+  'Gradient Boosting':   {fpr:[0,0,0.049,0.049,0.073,0.073,0.146,0.146,0.171,0.171,0.317,0.317,0.341,0.341,0.415,0.415,0.463,0.463,0.488,0.488,1],tpr:[0,0.053,0.053,0.474,0.474,0.632,0.632,0.684,0.684,0.737,0.737,0.789,0.789,0.842,0.842,0.895,0.895,0.947,0.947,1,1],auc:0.8447}
+};
+const CONF = {
+  'Logistic Regression':[[38,3],[8,11]],'Naive Bayes':[[38,3],[12,7]],'SVM':[[38,3],[11,8]],
+  'KNN':[[38,3],[15,4]],'Decision Tree':[[35,6],[10,9]],'Random Forest':[[38,3],[7,12]],'Gradient Boosting':[[38,3],[7,12]]
+};
+const IMPORTANCES = {age:0.077,anaemia:0.011,creatinine_phosphokinase:0.075,diabetes:0.014,ejection_fraction:0.129,high_blood_pressure:0.013,platelets:0.077,serum_creatinine:0.154,serum_sodium:0.066,sex:0.011,smoking:0.011,time:0.361};
+const DIST_DATA = {
+  ejection_fraction:{survived:[30,25,60,30,30,50,35,40,35,80,40,35,50,60,40,38,45,40,50,50,50,35,60,40,25,45,45,60,38,60,25,60,25,40,25,45,25,30,50,45,35,38,35,35,25,40,40,60,60,60,60,38,38,30,50,60,30,35,60,45,40,60,35,40,60,25,35,30,35,30,40,30,30,60,35,60,45,35,35,25,35,25,50,45,40,35,40,60,40,35,35,40,60,20,35,60,40,50,60,40,30,40,45,35,60,40,30,38,30,20,35,45,60,60,25,40,45,40,38,40,35,17,62,50,35,35,50,35,35,50,35,25,25,60,25,35,25,25,35,35,38,45,50,50,30,40,45,35,30,35,40,38,38,25,35,40,30,35,45,35,60,30,38,38,25,50,40,40,60,38,35,38,38,35,30,40,38,40,30,38,35,38,30,38,40,40,30,38,40,40,35,55,35,38,55,35,38,35,38,38,60,38,45],died:[20,38,20,20,20,40,15,60,65,35,38,25,30,38,50,38,14,25,55,30,35,30,38,40,45,38,30,38,45,35,50,35,50,50,38,20,30,45,60,38,25,38,20,30,25,20,62,50,38,30,20,20,25,40,35,20,15,25,25,25,35,20,20,25,25,25,30,60,60,38,40,17,38,25,30,45,35,30,38,20,25,25,38,25,30,50,25,20,45,30,70,20,30,25,25,20]},
+  serum_creatinine:{survived:[1.0,1.3,0.8,1.2,2.3,1.0,2.7,0.6,1.1,1.18,0.8,0.9,1.3,0.8,1.2,0.6,0.9,1.7,1.18,1.8,0.7,1.1,0.8,0.7,1.1,0.8,1.0,1.18,0.7,1.0,1.3,1.1,1.2,1.1,1.1,1.18,1.1,1.0,2.3,1.3,0.9,1.1,1.3,1.2,1.6,1.2,1.0,0.7,3.2,0.9,1.5,1.0,0.75,0.9,1.3,0.8,0.7,3.4,0.7,6.1,1.18,1.3,1.18,1.18,0.9,2.1,1.0,0.8,0.9,0.9,0.9,0.7,0.7,1.0,0.9,0.9,0.9,1.18,0.8,1.7,1.4,1.0,1.3,1.1,1.2,0.8,0.9,0.7,1.0,0.8,1.5,0.9,1.1,0.8,0.9,1.0,1.0,1.0,1.2,0.7,0.9,1.0,0.9,2.1,1.5,0.7,1.18,1.18,0.8,1.0,1.8,0.7,1.0,0.9,3.5,0.7,1.0,0.8,0.9,1.0,0.8,1.0,0.8,1.4,0.8,1.3,0.9,1.1,0.7,1.1,1.1,0.8,1.0,1.4,1.3,1.0,5.0,1.2,1.1,0.9,1.4,1.1,1.1,1.1,1.2,1.0,1.18,1.3,1.3,1.1,0.9,1.8,1.4,2.4,1.0,1.2,0.5,0.8,1.0,1.2,1.0,1.0,1.7,1.0,0.8,0.7,1.0,0.7,1.0,1.2,0.9,1.7,0.9,1.0,1.6,0.9,1.2,0.7,1.0,0.8,1.1,1.1,0.7,1.3,1.0,2.7,3.8,1.1,0.8,1.2,1.7,1.0,1.1,0.9,0.8,1.4,1.0,0.9,1.1,1.2,0.8,1.4,1.6],died:[1.9,1.1,1.3,1.9,2.7,2.1,1.2,1.1,1.5,9.4,4.0,0.9,1.1,1.1,1.3,0.9,0.8,1.0,1.9,1.6,0.9,1.83,1.9,1.0,1.3,5.8,1.2,1.83,3.0,1.0,1.0,3.5,1.0,1.0,3.0,1.83,1.2,1.2,1.1,1.9,0.9,0.6,4.4,1.0,1.0,1.4,6.8,1.0,2.2,2.0,1.1,1.3,1.0,2.3,1.0,2.9,1.3,1.0,1.2,1.83,1.0,1.2,0.7,2.5,1.0,1.7,1.7,1.2,1.3,1.83,3.7,2.1,1.1,1.7,1.83,2.5,0.9,1.1,1.3,2.4,1.0,1.2,2.5,1.2,1.5,0.6,2.1,1.6,1.8,1.6,9.0,1.83,1.7,1.1,1.4,1.83]},
+  serum_sodium:{survived:[138,137,135,138,137,134,138,138,139,137,140,139,137,140,140,131,140,136,137,133,140,137,140,139,144,136,133,137,142,141,134,136,137,140,141,137,144,140,143,137,138,133,142,135,136,126,139,136,138,140,135,136,140,145,135,137,136,145,138,131,137,145,137,137,137,130,136,138,140,132,141,141,136,137,136,139,134,137,136,140,136,136,134,139,134,139,137,133,138,133,136,140,145,139,137,138,135,140,145,140,136,136,140,134,135,130,142,137,138,134,113,137,136,138,136,137,136,141,136,141,130,136,140,138,134,134,141,134,140,145,139,134,138,125,132,140,130,134,134,137,137,137,137,148,132,136,137,139,136,136,141,134,137,135,142,130,139,143,133,132,139,142,139,139,135,135,138,133,140,141,140,140,140,132,130,134,133,140,137,137,142,140,136,136,137,136,128,138,141,135,140,132,142,144,141,139,140,136,143,139,138,140,136],died:[130,136,129,137,116,132,137,131,138,133,131,140,137,137,136,140,127,140,121,136,140,134,144,138,136,134,132,134,132,128,140,134,134,145,142,134,136,139,142,135,130,138,133,140,138,139,146,134,132,132,136,136,139,131,145,127,136,140,142,135,132,134,139,132,141,135,138,132,137,134,134,124,134,139,134,135,142,139,135,134,136,136,134,137,136,134,144,135,145,130,137,134,127,138,129,134]},
+  age:{survived:[49,65,53,50,60,72,70,60,55,45,41,58,65,70,42,75,55,70,67,79,51,55,65,44,57,70,60,42,58,58,63,70,60,63,65,75,80,42,60,55,45,63,45,55,50,60,58,60,85,65,60,66,60,60,43,58,61,53,53,60,46,63,81,75,65,68,62,50,46,50,61,50,52,64,60,62,50,50,65,60,52,50,85,59,66,45,63,53,65,70,51,52,70,50,65,60,69,49,63,55,40,60,40,80,64,50,73,45,65,50,60,63,45,70,60,78,50,40,85,60,49,70,50,78,65,73,70,68,55,65,42,47,58,75,58,55,65,72,70,40,53,53,77,75,70,65,55,70,65,40,73,54,61,64,40,53,50,55,50,70,53,52,65,58,45,53,55,62,68,61,50,56,45,40,44,51,67,42,60,45,70,70,50,55,70,70,42,65,50,55,60,45,65,90,45,60,52,63,62,55,45,45,50],died:[75,55,65,50,65,90,75,60,65,80,75,62,45,50,82,87,45,70,48,65,68,75,80,95,70,58,82,94,85,50,65,69,90,82,60,70,50,70,60,50,51,60,80,57,68,53,60,70,60,95,49,72,45,50,45,60,42,72,70,65,85,69,60,60,59,60,72,85,70,86,60,46,80,72,75,72,50,45,80,59,59,65,75,58,60,50,60,45,77,48,54,73,60,55,65,55]},
+  creatinine_phosphokinase:{survived:[80,52,63,159,2656,127,75,607,109,582,148,582,224,92,102,203,336,69,582,55,78,47,68,84,115,66,897,582,144,133,514,59,156,61,305,582,898,5209,53,748,1876,936,292,60,369,754,400,96,102,113,737,68,96,582,358,200,248,270,1808,1082,719,193,4540,582,59,646,281,1548,291,482,84,185,132,1610,2261,30,115,1846,335,231,58,250,910,129,72,130,582,196,582,835,582,3966,171,115,198,95,1419,69,122,835,478,151,244,582,62,121,231,582,167,582,1211,1767,308,97,59,64,167,101,212,2281,972,212,582,224,135,582,1202,1021,582,118,86,582,582,675,57,2794,56,211,93,129,707,582,109,119,232,720,180,81,582,90,1185,582,80,143,624,207,2522,572,245,88,446,191,326,132,66,56,66,655,157,582,298,135,582,582,582,582,213,64,257,582,618,582,1051,84,2695,582,64,1688,54,170,253,582,892,337,615,320,190,103,61,1820,2060,2413,196],died:[582,7861,146,111,160,47,246,315,157,123,81,231,981,168,379,149,582,125,582,128,220,582,148,112,122,60,70,582,23,249,94,582,60,855,235,582,124,571,588,582,1380,582,553,129,577,91,3964,69,260,371,789,364,7702,318,582,68,250,110,161,113,5882,582,47,76,280,154,328,129,143,582,582,168,805,943,582,233,2334,2442,776,66,176,395,99,145,104,582,1896,582,418,131,427,582,166,2017,258,1199]},
+  platelets:{survived:[427000,276000,368000,302000,305000,218000,223000,216000,254000,263358,374000,122000,149000,317000,237000,283000,324000,293000,263358,172000,406000,173000,304000,235000,181000,249000,297000,263358,327000,219000,254000,255000,318000,221000,298000,263358,149000,226000,286000,263000,226000,304000,850000,228000,252000,328000,164000,271000,507000,203000,210000,162000,228000,127000,237000,300000,267000,227000,249000,250000,263358,295000,231000,263358,172000,305000,221000,211000,348000,329000,229000,266000,218000,242000,228000,244000,184000,263358,235000,194000,277000,262000,235000,362000,242000,174000,448000,220000,270000,305000,263358,325000,176000,189000,281000,337000,105000,132000,267000,279000,303000,201000,275000,350000,309000,260000,160000,263358,259000,279000,263358,73000,377000,220000,212000,277000,362000,226000,186000,283000,268000,389000,147000,481000,290000,203000,358000,271000,371000,194000,365000,130000,504000,265000,189000,141000,237000,274000,185000,255000,330000,305000,406000,248000,173000,257000,263358,533000,249000,255000,220000,264000,282000,246000,301000,223000,404000,231000,274000,236000,263358,334000,294000,253000,233000,308000,203000,283000,208000,147000,362000,133000,302000,222000,263358,221000,215000,189000,150000,422000,327000,25100,232000,451000,241000,51000,215000,263358,279000,336000,279000,543000,263358,390000,222000,133000,382000,179000,155000,270000,742000,140000,395000],died:[265000,263358,162000,210000,327000,204000,127000,454000,263358,388000,368000,253000,136000,276000,47000,262000,166000,237000,87000,297000,289000,263358,149000,196000,284000,153000,200000,263358,360000,319000,188000,228000,226000,321000,329000,263358,153000,185000,194000,310000,271000,451000,140000,395000,166000,418000,263358,351000,255000,461000,319000,254000,390000,216000,385000,119000,213000,274000,244000,497000,243000,266000,204000,196000,302000,210000,621000,306000,351000,263358,217000,271000,263358,338000,225000,235000,75000,334000,192000,70000,221000,265000,224000,219000,389000,153000,365000,126000,223000,244000,151000,263358,62000,314000,198000,263358]}
+};
+
+const COLORS = ['#3266ad','#e05a4a','#4a9e6b','#d4a017','#7b4ea8','#1d8fa8','#d47515'];
+const LABELS_SHORT = ['LR','NB','SVM','KNN','DT','RF','GB'];
+
+let distChart = null;
+
+function showTab(t) {
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+t).classList.add('active');
+  event.target.classList.add('active');
+}
+
+function makeHistBins(data, bins, min, max) {
+  const step = (max - min) / bins;
+  const counts = new Array(bins).fill(0);
+  const labels = [];
+  for (let i=0;i<bins;i++) labels.push((min + i*step).toFixed(1));
+  data.forEach(v => {
+    const idx = Math.min(Math.floor((v - min) / step), bins-1);
+    if (idx >= 0) counts[idx]++;
+  });
+  return {counts, labels};
+}
+
+function updateDist() {
+  const key = document.getElementById('dist-sel').value;
+  const d = DIST_DATA[key];
+  const allVals = [...d.survived, ...d.died];
+  let minV = Math.min(...allVals), maxV = Math.max(...allVals);
+  const bins = 20;
+  const s = makeHistBins(d.survived, bins, minV, maxV);
+  const dd = makeHistBins(d.died, bins, minV, maxV);
+  
+  const avgS = (d.survived.reduce((a,b)=>a+b,0)/d.survived.length).toFixed(2);
+  const avgD = (d.died.reduce((a,b)=>a+b,0)/d.died.length).toFixed(2);
+  
+  if (distChart) distChart.destroy();
+  distChart = new Chart(document.getElementById('c-dist'), {
+    type: 'bar',
+    data: {
+      labels: s.labels,
+      datasets: [
+        {label:'Survived',data:s.counts,backgroundColor:'rgba(50,102,173,0.5)',borderColor:'#3266ad',borderWidth:1},
+        {label:'Died',data:dd.counts,backgroundColor:'rgba(224,90,74,0.5)',borderColor:'#e05a4a',borderWidth:1}
+      ]
+    },
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{maxRotation:45,autoSkip:true,maxTicksLimit:10},grid:{display:false}},y:{ticks:{maxTicksLimit:6}}}}
+  });
+
+  document.getElementById('dist-stats').innerHTML = `
+    <div style="padding:8px;background:var(--color-background-secondary);border-radius:var(--border-radius-md);">
+      <div style="font-weight:500;color:#3266ad;margin-bottom:2px;">Survived (n=${d.survived.length})</div>
+      <div style="color:var(--color-text-secondary);">Mean: ${avgS} &nbsp;·&nbsp; Min: ${Math.min(...d.survived).toFixed(1)} &nbsp;·&nbsp; Max: ${Math.max(...d.survived).toFixed(1)}</div>
+    </div>
+    <div style="padding:8px;background:var(--color-background-secondary);border-radius:var(--border-radius-md);">
+      <div style="font-weight:500;color:#e05a4a;margin-bottom:2px;">Died (n=${d.died.length})</div>
+      <div style="color:var(--color-text-secondary);">Mean: ${avgD} &nbsp;·&nbsp; Min: ${Math.min(...d.died).toFixed(1)} &nbsp;·&nbsp; Max: ${Math.max(...d.died).toFixed(1)}</div>
+    </div>`;
+}
+
+window.addEventListener('load', () => {
+  // Class donut
+  new Chart(document.getElementById('c-class'), {
+    type:'doughnut',
+    data:{labels:['Survived (67.9%)','Died (32.1%)'],datasets:[{data:[203,96],backgroundColor:['#3266ad','#e05a4a'],borderWidth:0}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:11},padding:8}}}}
+  });
+
+  // AUC bar
+  new Chart(document.getElementById('c-auc-bar'), {
+    type:'bar',
+    data:{
+      labels:LABELS_SHORT,
+      datasets:[{label:'AUC-ROC',data:MODELS.map(m=>CV[m].AUCROC),backgroundColor:COLORS,borderRadius:4}]
+    },
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{min:0.6,max:0.95,ticks:{maxTicksLimit:5}},x:{grid:{display:false}}}}
+  });
+
+  // Age histogram
+  const ages = DIST_DATA.age;
+  const ageS = makeHistBins(ages.survived,16,40,96);
+  const ageD = makeHistBins(ages.died,16,40,96);
+  new Chart(document.getElementById('c-age'), {
+    type:'bar',
+    data:{labels:ageS.labels,datasets:[
+      {label:'Survived',data:ageS.counts,backgroundColor:'rgba(50,102,173,0.55)',borderColor:'#3266ad',borderWidth:1},
+      {label:'Died',data:ageD.counts,backgroundColor:'rgba(224,90,74,0.55)',borderColor:'#e05a4a',borderWidth:1}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{maxRotation:0,maxTicksLimit:8},grid:{display:false}},y:{ticks:{maxTicksLimit:5}}}}
+  });
+
+  // Model table
+  const tbody = document.getElementById('model-tbody');
+  const bestMCC = Math.max(...MODELS.map(m=>CV[m].MCC));
+  MODELS.forEach(m => {
+    const r = CV[m];
+    const isBest = r.MCC === bestMCC;
+    tbody.innerHTML += `<tr${isBest?' class="best"':''}><td>${m}${isBest?' ★':''}</td><td>${r.MCC}</td><td>${r.AUCROC}</td><td>${r.F1}</td><td>${r.Precision}</td><td>${r.Recall}</td><td>${r.Accuracy}</td></tr>`;
+  });
+
+  // MCC bar
+  new Chart(document.getElementById('c-mcc'), {
+    type:'bar',
+    data:{labels:LABELS_SHORT,datasets:[{data:MODELS.map(m=>CV[m].MCC),backgroundColor:COLORS,borderRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{min:0,max:0.75,ticks:{maxTicksLimit:5}},x:{grid:{display:false}}}}
+  });
+
+  // F1 bar
+  new Chart(document.getElementById('c-f1'), {
+    type:'bar',
+    data:{labels:LABELS_SHORT,datasets:[{data:MODELS.map(m=>CV[m].F1),backgroundColor:COLORS,borderRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{min:0,max:0.85,ticks:{maxTicksLimit:5}},x:{grid:{display:false}}}}
+  });
+
+  // ROC curves
+  const legend = document.getElementById('roc-legend');
+  const rocDs = MODELS.map((m,i) => {
+    legend.innerHTML += `<span class="leg-item"><span class="leg-dot" style="background:${COLORS[i]}"></span>${m} (${ROC[m].auc})</span>`;
+    return {label:`${m} (${ROC[m].auc})`,data:ROC[m].fpr.map((f,j)=>({x:f,y:ROC[m].tpr[j]})),borderColor:COLORS[i],borderWidth:1.5,fill:false,pointRadius:0,tension:0};
+  });
+  rocDs.push({label:'Random',data:[{x:0,y:0},{x:1,y:1}],borderColor:'#aaa',borderWidth:1,borderDash:[4,4],fill:false,pointRadius:0});
+  new Chart(document.getElementById('c-roc'), {
+    type:'scatter',
+    data:{datasets:rocDs},
+    options:{responsive:true,maintainAspectRatio:false,showLine:true,plugins:{legend:{display:false}},scales:{x:{title:{display:true,text:'False positive rate'},min:0,max:1},y:{title:{display:true,text:'True positive rate'},min:0,max:1}}}
+  });
+
+  // Feature importance
+  const feat = Object.entries(IMPORTANCES).sort((a,b)=>b[1]-a[1]);
+  new Chart(document.getElementById('c-feat'), {
+    type:'bar',
+    data:{
+      labels:feat.map(f=>f[0].replace(/_/g,' ')),
+      datasets:[{data:feat.map(f=>+f[1].toFixed(4)),backgroundColor:feat.map((_,i)=>i<3?'#3266ad':'#a0b8d8'),borderRadius:3}]
+    },
+    options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{ticks:{maxTicksLimit:5}},y:{ticks:{font:{size:11}}}}}
+  });
+
+  // Distribution default
+  updateDist();
+
+  // Confusion matrices
+  const cg = document.getElementById('conf-grid');
+  MODELS.forEach(m => {
+    const cm = CONF[m];
+    const tn=cm[0][0],fp=cm[0][1],fn=cm[1][0],tp=cm[1][1];
+    cg.innerHTML += `
+      <div class="conf-box">
+        <div class="conf-title">${m}</div>
+        <div class="conf-matrix">
+          <div class="cm-cell cm-tn">${tn}<span class="cm-label">TN</span></div>
+          <div class="cm-cell cm-fp">${fp}<span class="cm-label">FP</span></div>
+          <div class="cm-cell cm-fn">${fn}<span class="cm-label">FN</span></div>
+          <div class="cm-cell cm-tp">${tp}<span class="cm-label">TP</span></div>
+        </div>
+      </div>`;
+  });
+});
+</script>
